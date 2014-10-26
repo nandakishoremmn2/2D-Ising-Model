@@ -34,8 +34,6 @@ def correlation_function(l, l0):
 	return ( 1.*l*l0/N - (1.*l0/N)**2 ).sum()
 
 Energy = []
-Energy_sum = 0
-Energy_average = []
 correlation = []
 iterations = 0
 
@@ -43,18 +41,8 @@ def sample_lattice(l):
 	global Energy_sum, iterations
 	Energy.append(energy(l))
 	correlation.append(correlation_function(l, lattice0))
-	# Energy_sum += Energy[-1]
 	iterations += 1
-	# Energy_average.append(1.*Energy_sum/iterations)
 
-def print_log(E, p, accept):
-	return
-	if accept:
-		print "Accept\tp = %.5f\t E = %d"%(p, E)
-	else:
-		print "Reject\tp = %.5f\t E = %d"%(p, E)
-
-@profile
 def update(*args):
 	location, neighbors = random_location(lattice)
 
@@ -102,9 +90,6 @@ if __name__ == '__main__':
 	lattice = alt_lattice(size) # min. energy lattice
 	lattice0 = lattice.copy()
 
-	# draw_lattice(lattice)
-	# show()
-
 	sample_lattice(lattice)
 
 	if visualise:
@@ -119,15 +104,10 @@ if __name__ == '__main__':
 		while iterations < sweeps:
 			sweep()
 
-
-	sample_lattice(lattice)
-
 	index = find(abs(array(correlation)) < 0.01)
 	index = index[0] if len(index) > 0 else 0
-	print index
-	# index = 0
 	print "Energy per unit volume = %f"%(average(Energy[index:])/V)
 	print "Specific heat capacity = %f"%(var(Energy[index:])/V)
-	# plot(correlation[index:], '-')
-	# plot(Energy[index:], '-')
-	# show()
+
+	plot(Energy[index:], '-')
+	show()
