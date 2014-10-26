@@ -31,7 +31,7 @@ def random_location(l):
 
 def correlation_function(l, l0):
 	N = product(l.shape)
-	return sum( 1.*l*l0/N - (1.*l0/N)**2 )
+	return ( 1.*l*l0/N - (1.*l0/N)**2 ).sum()
 
 Energy = []
 Energy_sum = 0
@@ -54,13 +54,14 @@ def print_log(E, p, accept):
 	else:
 		print "Reject\tp = %.5f\t E = %d"%(p, E)
 
+@profile
 def update(*args):
 	location, neighbors = random_location(lattice)
 
 	# Flip a spin
 	lattice[location] *= -1
 
-	dE = 4*sum(lattice[location]*neighbors)
+	dE = 4*(lattice[location]*neighbors).sum()
 
 	if dE > 0 and rand() >= exp(-dE/T):
 		# flip it back
