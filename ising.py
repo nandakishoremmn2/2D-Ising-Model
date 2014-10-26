@@ -3,15 +3,15 @@ import matplotlib.animation as animation
 from argparse import ArgumentParser
 
 def energy(l):
-	return  2*( sum(l[:,1:]*l[:,:-1]) + sum(l[1:,:]*l[:-1,:]) + sum(l[0,:]*l[-1,:]) + sum(l[:,0]*l[:,-1]) )
+	return  -2*( (l[:,1:]*l[:,:-1]).sum() + (l[1:,:]*l[:-1,:]).sum() + (l[0,:]*l[-1,:]).sum() + (l[:,0]*l[:,-1]).sum() )
 
 def random_lattice(shape):
 	return random_integers(0, 1, shape)*2-1
 
 def alt_lattice(shape):
-	l = ones(shape, dtype=integer)
-	l[::2,::2] = -1
-	l[1::2,1::2] = -1
+	l = -ones(shape, dtype=integer)
+	# l[::2,::2] = -1
+	# l[1::2,1::2] = -1
 	return l
 
 def draw_lattice(lattice):
@@ -35,11 +35,13 @@ def correlation_function(l, l0):
 
 Energy = []
 correlation = []
+magnetisation = []
 iterations = 0
 
 def sample_lattice(l):
-	global Energy_sum, iterations
+	global iterations
 	Energy.append(energy(l))
+	magnetisation.append(l.sum())
 	correlation.append(correlation_function(l, lattice0))
 	iterations += 1
 
@@ -49,7 +51,7 @@ def update(*args):
 	# Flip a spin
 	lattice[location] *= -1
 
-	dE = 4*(lattice[location]*neighbors).sum()
+	dE = -4*(lattice[location]*neighbors).sum()
 
 	if dE > 0 and rand() >= exp(-dE/T):
 		# flip it back
@@ -86,7 +88,7 @@ if __name__ == '__main__':
 
 	V = product(size) # Volume
 
-	# lattice = random_lattice(shape)
+	# lattice = random_lattice(size)
 	lattice = alt_lattice(size) # min. energy lattice
 	lattice0 = lattice.copy()
 
@@ -108,6 +110,8 @@ if __name__ == '__main__':
 	index = index[0] if len(index) > 0 else 0
 	print "Energy per unit volume = %f"%(average(Energy[index:])/V)
 	print "Specific heat capacity = %f"%(var(Energy[index:])/V)
+	print "Magnetisation          = %f"%(average(magnetisation[index:])/V)
 
+	# plot(magnetisation[index:], '-')
 	plot(Energy[index:], '-')
 	show()
